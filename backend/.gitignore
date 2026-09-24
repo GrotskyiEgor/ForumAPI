@@ -1,0 +1,18 @@
+# Зависимости
+node_modules/
+
+# Сборка TypeScript
+dist/
+build/
+*.tsbuildinfo
+
+# Переменные окружения
+.env
+.env.local
+
+# Логи
+*.log
+npm-debug.log*
+
+# ОС
+.DS_Store
