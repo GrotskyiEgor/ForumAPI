@@ -1,16 +1,21 @@
-import * as postRepository from "../repositories/post.js"
+import type { Post, NewPost } from "../domain/post/entity.js"
+import type { PostReposityry } from "../domain/post/repository.js"
+import type { PostSevice } from "./types.js"
 
-import type { Post, createPostDto } from "../transport/dto/post/responses.js"
 
+export function createPostService(postRepository: PostReposityry): PostSevice {
 
-export function getAll(category?: string, take?: number){
-    return postRepository.getAll(category, take)
-}
-
-export function getById(id: number){
-    return postRepository.getById(id)
-}
-
-export function addPost(post: createPostDto): Promise<Post>{
-    return postRepository.addPost(post)
+    return {
+        getAll(category, take){
+            return postRepository.getAll(category, take)
+        },
+        
+        getById(id){
+            return postRepository.getById(id)
+        },
+        
+        addPost(post){
+            return postRepository.addPost(post)
+        }
+    }
 }
