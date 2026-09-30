@@ -54,5 +54,3 @@ export function createPostHandlers(postService: PostSevice) {
 
     return { getAll, getById, addPost}
 }
-
-export type PostHandlers = ReturnType<typeof createPostHandlers>
