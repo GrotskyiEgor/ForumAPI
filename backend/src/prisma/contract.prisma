@@ -1,0 +1,27 @@
+// use prisma-8
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt TimestamptzString @default(now())
+
+  posts     Post[]
+}
+
+model Post {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  title       String
+  author      String
+  description String
+  category    String
+  createdAt   TimestamptzString @default(now())
+  updatedAt   TimestamptzString @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([category])
+}

@@ -1,7 +1,8 @@
 import { type Request, type Response } from "express"
 
-import type { PostSevice } from "../../services/types.js"
-import type { Post, createPostDto, ErrorResponse } from "../dto/post/responses.js"
+import type { PostSevice } from "../../../services/post/types.js"
+import type { NewPost, Post } from "../../../domain/post/entity.js"
+import type { createPostDto, ErrorResponse } from "../../dto/post/responses.js"
 
 
 export function createPostHandlers(postService: PostSevice) {
@@ -30,12 +31,12 @@ export function createPostHandlers(postService: PostSevice) {
     }
     
     async function addPost(req: Request<{}, {}, createPostDto>, res: Response< Post | ErrorResponse>){
-        const { title, content, author, category } = req.body
+        const { title, description, author, category } = req.body
     
         try {
-            const createPost: createPostDto = {
+            const createPost: NewPost = {
                     title, 
-                    content, 
+                    description, 
                     author, 
                     category
                 }

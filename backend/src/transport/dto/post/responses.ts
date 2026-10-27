@@ -1,14 +1,17 @@
 export interface Post {
-    id: number,
-    title: string,
-    content: string,
-    author: string,
-    category: string    
+    id: number;
+    userId: number;
+    title: string;
+    author: string;
+    description: string;
+    category: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface createPostDto {
     title: string,
-    content: string,
+    description: string,
     author: string,
     category: string    
 }
