@@ -1,3 +1,4 @@
+import cors from 'cors'
 import express, { type Express } from "express"
 
 import { createPostRepository } from "./repositories/post.js"
@@ -15,7 +16,9 @@ const postRouter = createPostRouter(postHandlers)
 
 const app: Express = express()
 
+app.use(cors());
 app.use(express.json())
+
 app.use(postRouter)
 app.use(express.static("public"))
 
