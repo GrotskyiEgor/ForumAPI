@@ -1,6 +1,7 @@
-import type { Post, NewPost } from "../domain/post/entity.js"
-import type { PostReposityry } from "../domain/post/repository.js"
+import type { Post, NewPost } from "../../domain/post/entity.js"
+import type { PostReposityry } from "../../domain/post/repository.js"
 import type { PostSevice } from "./types.js"
+
 
 
 export function createPostService(postRepository: PostReposityry): PostSevice {
