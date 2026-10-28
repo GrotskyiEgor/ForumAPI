@@ -1,21 +1,7 @@
-export interface Post {
-    id: number;
-    userId: number;
-    title: string;
-    author: string;
-    description: string;
-    category: string;
-    createdAt: string;
-    updatedAt: string;
-}
+import type { Post } from "./requests.js"
+import type { InvalidUserIdError, PostAllFieldsRequiredError, PostNotFoundError } from "./errors.js"
+import type { UserNotFoundError } from "../user/errors.js"
 
-export interface createPostDto {
-    title: string,
-    description: string,
-    author: string,
-    category: string    
-}
-
-export interface ErrorResponse {
-    message: string
-}
+export type GetAllPostResponse = {success: true, data: Post[]}
+export type GetPostByIdResponse = {success: true, data: Post} | {success: false, error: PostNotFoundError}
+export type AddPostResponse = {success: true, data: Post} | {success: false, error: InvalidUserIdError | PostAllFieldsRequiredError | UserNotFoundError}

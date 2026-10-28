@@ -22,6 +22,16 @@ export function createUserRepository(): UserRepository {
             }
 
             return user
+        },
+
+        async getUserById(id) {
+            const user = await db.orm.public.User.where({ id }).first()
+
+            if (!user) {
+                return undefined;
+            }
+
+            return user
         }
     }
 }

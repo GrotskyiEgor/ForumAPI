@@ -12,6 +12,5 @@ export interface Post {
 export interface NewPost {
     title: string,
     description: string,
-    author: string,
     category: string
 }

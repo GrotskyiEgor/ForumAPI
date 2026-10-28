@@ -1,6 +1,7 @@
 import type { UserService } from "./types.js";
 import type { UserRepository } from "../../domain/user/repository.js";
 import { PasswordNotCorrectError, EmailNotCorrectError, UserAlreadyExistError, UserNotFoundError } from "../../transport/dto/user/errors.js";
+import { verifyPassword } from "../../lib/password.js";
 
 
 export function createUserService(userRepository: UserRepository): UserService {
@@ -24,7 +25,7 @@ export function createUserService(userRepository: UserRepository): UserService {
                 return { success: false, error: new EmailNotCorrectError()}
             }
 
-            if(user.password !== userLogin.password){
+            if(!await verifyPassword(user.password, userLogin.password)){
                 return { success: false, error: new PasswordNotCorrectError()}
             }
 
