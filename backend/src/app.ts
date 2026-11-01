@@ -31,10 +31,9 @@ const postService = createPostService(postRepository)
 const postHandlers = createPostHandlers(postService)
 const postRouter = createPostRouter(postHandlers)
 
-app.use(userRouter)
-app.use(postRouter)
+app.use("post", userRouter)
+app.use("auth", postRouter)
 app.use(express.static("public"))
-
 
 app.listen(PORT, HOST, () => {
     console.log(`Start server http://${HOST}:${PORT}`)
