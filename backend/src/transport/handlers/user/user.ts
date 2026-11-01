@@ -1,4 +1,5 @@
-import { createAccessToken, createCookieAccessToken } from "../../../lib/jwt.js";
+import { createCookieAccessToken, createCookieRefreshToken } from "../../../lib/createTokens.js";
+import { signAccessToken, signRefreshToken } from "../../../lib/jwt.js";
 import type { UserService } from "../../../services/user/types.js";
 import type { UserHandlers } from "./types.js";
 
@@ -38,14 +39,44 @@ export function createUserHandlers(userService: UserService): UserHandlers {
                 }
 
                 const user = result.data
-                const accessToken = createAccessToken(user.id)
+
+                const accessToken = signAccessToken(user.id)
+                const refreshToken = signRefreshToken(user.id)
+
                 createCookieAccessToken(res, accessToken)
+                createCookieRefreshToken(res, refreshToken)
 
                 return res.status(200).json(result.data)
             } catch (error) {
                 console.log(error)
                 return res.status(500).json({error: "Server error"})
             }
-        }
+        },
+         
+        async refresh(req, res) {
+            const refreshToken = req.cookies?.refreshToken
+
+            if(typeof refreshToken !== "string"){
+                return res.status(401).json({ error: "Unauthorized"})
+            }
+
+            try {
+                const result = await userService.refresh(refreshToken)
+
+                if (!result.success){
+                    return res.status(401).json({ error: result.error.message})
+                }
+
+                createCookieAccessToken(res, result.data.accessToken)
+                createCookieRefreshToken(res, result.data.refreshToken)
+
+                return res.status(200).json({ message: "success"})
+            } catch (error) {
+                console.log(error)
+                return res.status(500).json({error: "Server error"})
+            }
+        },
     }
 }
+
+
