@@ -1,4 +1,4 @@
-import type { UserLogin, UserRegistrate} from "../../domain/user/entity.js";
+import type { UserLogin, UserRegistrate } from "../../transport/dto/user/request.js"
 import type { RegisterUserResponse, LoginUserResponse, GetUserByIdResponse, RefreshUserResponse} from "../../transport/dto/user/response.js"
 
 

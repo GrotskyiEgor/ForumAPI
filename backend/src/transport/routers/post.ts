@@ -1,7 +1,7 @@
 import { Router } from "express"
 
 import type { PostHandlers } from "../handlers/post/types.js"
-import { authMiddleware } from "../../lib/jwt.js";
+import { authMiddleware } from "../../middleware/auth.js"
 
 
 export function createPostRouter(postHandler: PostHandlers): Router {

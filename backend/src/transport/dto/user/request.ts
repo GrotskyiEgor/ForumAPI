@@ -8,4 +8,4 @@ export interface User{
 
 export type UserRegistrate = Omit<User, "id" | "createdAt">
 
-export type UserLogin = Omit<User, "email" | "password">
+export type UserLogin = Pick<User, "email" | "password">

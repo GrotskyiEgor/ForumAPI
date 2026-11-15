@@ -5,7 +5,3 @@ export interface User{
     password: string
     createdAt: string
 }
-
-export type UserRegistrate = Omit<User, "id" | "createdAt">
-
-export type UserLogin = Pick<User, "email" | "password">

@@ -1,11 +1,11 @@
-import PostCard from "../../apps/posts/posts";
-import type { Post } from "../../types/proudct";
+import PostList from "../../apps/posts/postList"
+import type { Post } from "../../types/proudct"
 
 type MainProps = {
     posts: Post[]
 }
 
-function main({posts}: MainProps) {
+function Main({ posts }: MainProps) {
     return (
         <main>
             <div className="main-panel">
@@ -13,13 +13,9 @@ function main({posts}: MainProps) {
                 <p>Добрый день еще раз</p>
             </div>
 
-            <div className="post-dev-list">
-                {posts.map((post) => (
-                    <PostCard key={post.id} post={post}/>
-                ))}
-            </div>
+            <PostList posts={posts} />
         </main>
     )
 }
 
-export default main
+export default Main
