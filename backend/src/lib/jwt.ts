@@ -16,12 +16,6 @@ if (!refreshSecret) {
     throw new Error("JWT_REFRESH_SECRET is not configured")
 }
 
-export const authMiddleware = expressjwt({
-    secret: accessSecret,
-    algorithms: ["HS256"],
-    getToken: (req) => req.cookies?.accessToken,
-})
-
 export function signAccessToken(userId: number): string {
     return jwt.sign({}, accessSecret, {
         algorithm: "HS256",

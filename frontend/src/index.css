@@ -181,3 +181,13 @@ line-height: 1.4;
     line-height: 1.7;
     overflow-wrap: anywhere;
 }
+
+.post-empty {
+    flex: 1;
+    padding: 24px;
+    text-align: center;
+    color: #64748b;
+    background: #ffffff;
+    border: 1px dashed #dbe3ef;
+    border-radius: 10px;
+}
