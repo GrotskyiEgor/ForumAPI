@@ -8,6 +8,7 @@ model User {
   createdAt TimestamptzString @default(now())
 
   posts     Post[]
+  refreshSessions RefreshSession[]
 }
 
 model Post {
@@ -24,4 +25,16 @@ model Post {
 
   @@index([userId])
   @@index([category])
+}
+
+model RefreshSession {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  tokenHash String   @unique
+  expiresAt TimestamptzString
+  createdAt TimestamptzString @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
