@@ -2,7 +2,9 @@ import cors from 'cors'
 import express, { type Express } from "express"
 import cookieParser from "cookie-parser";
 
+import { createRefreshSessionRepository } from './repositories/refreshSession.js';
 import { createUserRepository } from "./repositories/user.js"
+
 import { createUserService } from "./services/user/user.js"
 import { createUserHandlers } from "./transport/handlers/user/user.js"
 import { createUserRouter } from "./transport/routers/user.js"
@@ -22,7 +24,8 @@ app.use(express.json())
 app.use(cookieParser());
 
 const userRepository = createUserRepository()
-const userService = createUserService(userRepository)
+const refreshSessionRepository = createRefreshSessionRepository()
+const userService = createUserService(userRepository, refreshSessionRepository)
 const userHandlers = createUserHandlers(userService)
 const userRouter = createUserRouter(userHandlers)
 
@@ -31,8 +34,8 @@ const postService = createPostService(postRepository)
 const postHandlers = createPostHandlers(postService)
 const postRouter = createPostRouter(postHandlers)
 
-app.use("post", userRouter)
-app.use("auth", postRouter)
+app.use("/auth", userRouter)
+app.use("/post", postRouter)
 app.use(express.static("public"))
 
 app.listen(PORT, HOST, () => {

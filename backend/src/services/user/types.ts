@@ -6,4 +6,5 @@ export interface UserService {
     registerUser(userRegistrate: UserRegistrate): Promise<RegisterUserResponse>
     loginUser(userLogin: UserLogin): Promise<LoginUserResponse>
     refresh(refreshToken: string): Promise<RefreshUserResponse>
+    logout(refreshToken: string): Promise<void>
 }

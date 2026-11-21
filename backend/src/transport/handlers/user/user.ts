@@ -1,5 +1,4 @@
-import { createCookieAccessToken, createCookieRefreshToken } from "../../../lib/createTokens.js";
-import { signAccessToken, signRefreshToken } from "../../../lib/jwt.js";
+import { createCookieAccessToken, createCookieRefreshToken, clearAuthCookies } from "../../../lib/createTokens.js";
 import type { UserService } from "../../../services/user/types.js";
 import type { UserHandlers } from "./types.js";
 
@@ -38,15 +37,12 @@ export function createUserHandlers(userService: UserService): UserHandlers {
                     return res.status(422).json({ error: result.error.message})
                 }
 
-                const user = result.data
+                const { user, tokens } = result.data
 
-                const accessToken = signAccessToken(user.id)
-                const refreshToken = signRefreshToken(user.id)
+                createCookieAccessToken(res, tokens.accessToken)
+                createCookieRefreshToken(res, tokens.refreshToken)
 
-                createCookieAccessToken(res, accessToken)
-                createCookieRefreshToken(res, refreshToken)
-
-                return res.status(200).json(result.data)
+                return res.status(200).json(user)
             } catch (error) {
                 console.log(error)
                 return res.status(500).json({error: "Server error"})
@@ -69,6 +65,23 @@ export function createUserHandlers(userService: UserService): UserHandlers {
 
                 createCookieAccessToken(res, result.data.accessToken)
                 createCookieRefreshToken(res, result.data.refreshToken)
+
+                return res.status(200).json({ message: "success"})
+            } catch (error) {
+                console.log(error)
+                return res.status(500).json({error: "Server error"})
+            }
+        },
+
+        async logout(req, res) {
+            const refreshToken = req.cookies?.refreshToken
+
+            try {
+                if(typeof refreshToken === "string"){
+                    await userService.logout(refreshToken)
+                }
+
+                clearAuthCookies(res)
 
                 return res.status(200).json({ message: "success"})
             } catch (error) {

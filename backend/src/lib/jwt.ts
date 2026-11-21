@@ -1,6 +1,7 @@
 import {type Response } from "express"
 
 import jwt from "jsonwebtoken";
+import { createHash, randomUUID } from "node:crypto";
 import { expressjwt } from "express-jwt";
 
 const accessSecret = process.env.JWT_ACCESS_SECRET || ""
@@ -29,17 +30,35 @@ export function signRefreshToken(userId: number): string {
         algorithm: "HS256",
         subject: String(userId),
         expiresIn: refreshTime,
+        jwtid: randomUUID(),
     })
+}
+
+export function hashRefreshToken(token: string): string {
+    return createHash("sha256").update(token, "utf8").digest("hex")
+}
+
+export function getRefreshTokenExpiresAt(token: string): Date {
+    const payload = jwt.decode(token)
+
+    if (!payload || typeof payload === "string" || typeof payload.exp !== "number") {
+        throw new Error("Invalid token")
+    }
+
+    return new Date(payload.exp * 1000)
 }
 
 export function verifyRefreshToken(token: string): number {
 	try{
 		const payload = jwt.verify(token, refreshSecret!, { algorithms: ["HS256"] });
+        
 		if (typeof payload === "string" ||  payload.type !== "refresh" || typeof payload.sub !== "string"){
 			throw new Error()
 		}
 		const userId = Number(payload.sub)
+
 		if (!Number.isSafeInteger(userId) || userId <= 0) throw new Error()
+
 		return userId
 	} catch (error)	{
 		throw new Error("Invalid token")

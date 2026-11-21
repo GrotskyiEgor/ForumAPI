@@ -4,6 +4,6 @@ import type { PasswordNotCorrectError, EmailNotCorrectError, UserAlreadyExistErr
 export type Tokens = { accessToken: string; refreshToken: string }
 
 export type RegisterUserResponse = { success: true; data: User} | { success: false; error: UserAlreadyExistError}
-export type LoginUserResponse = { success: true; data: User} | { success: false; error: PasswordNotCorrectError | EmailNotCorrectError }
+export type LoginUserResponse = { success: true; data: { user: User; tokens: Tokens } } | { success: false; error: PasswordNotCorrectError | EmailNotCorrectError }
 export type GetUserByIdResponse = { success: true; data: User} | { success: false; error: UserNotFoundError}
 export type RefreshUserResponse = { success: true; data: Tokens} | { success: false; error: InvalidRefreshTokenError}

@@ -22,3 +22,19 @@ export function createCookieRefreshToken(res: Response, refreshToken: string){
         path: "/auth",
     });
 }
+
+export function clearAuthCookies(res: Response){
+    res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+    })
+    
+    res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/auth",
+    })
+}
