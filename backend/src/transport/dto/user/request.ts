@@ -1,11 +1,11 @@
-export interface User{
-    id: number
-    name: string
-    email: string
-    password: string
-    createdAt: string
+export interface User {
+	id: number;
+	name: string;
+	email: string;
+	password: string;
+	createdAt: string;
 }
 
-export type UserRegistrate = Omit<User, "id" | "createdAt">
+export type UserRegistrate = Omit<User, "id" | "createdAt">;
 
-export type UserLogin = Pick<User, "email" | "password">
+export type UserLogin = Pick<User, "email" | "password">;

@@ -1,60 +1,158 @@
-import type { UserService } from "./types.js";
-import type { UserRepository } from "../../domain/user/repository.js";
-import { PasswordNotCorrectError, EmailNotCorrectError, UserAlreadyExistError, UserNotFoundError, InvalidRefreshTokenError } from "../../transport/dto/user/errors.js";
-import { verifyPassword } from "../../lib/password.js";
-import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../../lib/jwt.js";
+import type { UserService, UserServiceDeps } from "./types.js";
+import type { PublicUser, User } from "../../domain/user/entity.js";
+import type { Tokens } from "../../transport/dto/user/response.js";
+import {
+	InvalidCredentialsError,
+	UserAlreadyExistError,
+	UserNotFoundError,
+	InvalidRefreshTokenError,
+} from "../../transport/dto/user/errors.js";
 
+function toPublicUser({ password: _password, ...user }: User): PublicUser {
+	return user;
+}
 
-export function createUserService(userRepository: UserRepository): UserService {
-    return {
-        async registerUser(userRegistrate) {
-            const user = await userRepository.getUserByEmail(userRegistrate.email)
-            
-            if(!user){
-                const createdUser = await userRepository.createUser(userRegistrate)
-                return { success: true, data: createdUser}
-            }
-            
-            return { success: false, error: new UserAlreadyExistError()}
-        
-        },
+function normalizeEmail(email: string): string {
+	return email.trim().toLowerCase();
+}
 
-        async loginUser(userLogin) {
-            const user = await userRepository.getUserByEmail(userLogin.email)
-            
-            if(!user){
-                return { success: false, error: new EmailNotCorrectError()}
-            }
+export function createUserService({
+	users,
+	sessions,
+	passwords,
+	tokens,
+	refreshTtlMs,
+}: UserServiceDeps): UserService {
+	const refreshExpiresAt = () => new Date(Date.now() + refreshTtlMs);
 
-            if(!await verifyPassword(user.password, userLogin.password)){
-                return { success: false, error: new PasswordNotCorrectError()}
-            }
+	async function issueTokens(userId: number): Promise<Tokens> {
+		const accessToken = tokens.signAccess(userId);
+		const refreshToken = tokens.signRefresh(userId);
 
-            return { success: true, data: user}
-        },
+		await sessions.create({
+			userId,
+			tokenHash: tokens.hash(refreshToken),
+			expiresAt: refreshExpiresAt(),
+		});
 
-        async refresh(refreshToken) {
-            let userId: number
+		return { accessToken, refreshToken };
+	}
 
-            try {
-                userId = verifyRefreshToken(refreshToken)
-            } catch {
-                return { success: false, error: new InvalidRefreshTokenError()}
-            }
+	return {
+		async registerUser(userRegistrate) {
+			const email = normalizeEmail(userRegistrate.email);
+			const password = await passwords.hash(userRegistrate.password);
 
-            const user = await userRepository.getUserById(userId)
+			try {
+				const createdUser = await users.create({
+					name: userRegistrate.name,
+					email,
+					password,
+				});
+				return { success: true, data: toPublicUser(createdUser) };
+			} catch (error) {
+				if (
+					error instanceof Error &&
+					error.message === "EMAIL_ALREADY_EXISTS"
+				) {
+					return {
+						success: false,
+						error: new UserAlreadyExistError(),
+					};
+				}
+				throw error;
+			}
+		},
 
-            if(!user){
-                return { success: false, error: new InvalidRefreshTokenError()}
-            }
+		async loginUser(userLogin) {
+			const email = normalizeEmail(userLogin.email);
+			const user = await users.getUserByEmail(email);
 
-            return {
-                success: true,
-                data: {
-                    accessToken: signAccessToken(user.id),
-                    refreshToken: signRefreshToken(user.id),
-                },
-            }
-        },
-    }
+			if (
+				!user ||
+				!(await passwords.verify(user.password, userLogin.password))
+			) {
+				return { success: false, error: new InvalidCredentialsError() };
+			}
+
+			const issued = await issueTokens(user.id);
+
+			return {
+				success: true,
+				data: { user: toPublicUser(user), tokens: issued },
+			};
+		},
+
+		async refresh(refreshToken) {
+			let userId: number;
+
+			try {
+				userId = tokens.verifyRefresh(refreshToken);
+			} catch {
+				return {
+					success: false,
+					error: new InvalidRefreshTokenError(),
+				};
+			}
+
+			const oldHash = tokens.hash(refreshToken);
+			const session = await sessions.getByTokenHash(oldHash);
+
+			if (
+				!session ||
+				session.userId !== userId ||
+				new Date(session.expiresAt) <= new Date()
+			) {
+				return {
+					success: false,
+					error: new InvalidRefreshTokenError(),
+				};
+			}
+
+			const user = await users.getUserById(userId);
+
+			if (!user) {
+				return {
+					success: false,
+					error: new InvalidRefreshTokenError(),
+				};
+			}
+
+			const newRefreshToken = tokens.signRefresh(user.id);
+			const rotated = await sessions.rotate({
+				oldHash,
+				newHash: tokens.hash(newRefreshToken),
+				expiresAt: refreshExpiresAt(),
+			});
+
+			if (!rotated) {
+				return {
+					success: false,
+					error: new InvalidRefreshTokenError(),
+				};
+			}
+
+			return {
+				success: true,
+				data: {
+					accessToken: tokens.signAccess(user.id),
+					refreshToken: newRefreshToken,
+				},
+			};
+		},
+
+		async me(userId) {
+			const user = await users.getUserById(userId);
+
+			if (!user) {
+				return { success: false, error: new UserNotFoundError() };
+			}
+
+			return { success: true, data: toPublicUser(user) };
+		},
+
+		async logout(refreshToken) {
+			await sessions.deleteByTokenHash(tokens.hash(refreshToken));
+		},
+	};
 }

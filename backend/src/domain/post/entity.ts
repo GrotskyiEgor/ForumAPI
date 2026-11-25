@@ -1,16 +1,16 @@
 export interface Post {
-    id: number;
-    userId: number;
-    title: string;
-    author: string;
-    description: string;
-    category: string;
-    createdAt: string;
-    updatedAt: string;
+	id: number;
+	userId: number;
+	title: string;
+	author: string;
+	description: string;
+	category: string;
+	createdAt: string;
+	updatedAt: string;
 }
 
 export interface NewPost {
-    title: string,
-    description: string,
-    category: string
+	title: string;
+	description: string;
+	category: string;
 }

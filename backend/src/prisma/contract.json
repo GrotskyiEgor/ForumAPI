@@ -8,6 +8,10 @@
       "model": "Post",
       "namespace": "public"
     },
+    "RefreshSession": {
+      "model": "RefreshSession",
+      "namespace": "public"
+    },
     "User": {
       "model": "User",
       "namespace": "public"
@@ -125,6 +129,84 @@
               "table": "Post"
             }
           },
+          "RefreshSession": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "expiresAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "tokenHash": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "user": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "expiresAt": {
+                  "column": "expiresAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "tokenHash": {
+                  "column": "tokenHash"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "RefreshSession"
+            }
+          },
           "User": {
             "fields": {
               "createdAt": {
@@ -176,6 +258,21 @@
                 },
                 "to": {
                   "model": "Post",
+                  "namespace": "public"
+                }
+              },
+              "refreshSessions": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "RefreshSession",
                   "namespace": "public"
                 }
               }
@@ -313,6 +410,87 @@
               },
               "uniques": []
             },
+            "RefreshSession": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "expiresAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "tokenHash": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "RefreshSession_userId_idx_a489d58a"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "RefreshSession"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "userId"
+                  ],
+                  "name": "RefreshSession_userId_idx_a489d58a",
+                  "prefix": "RefreshSession_userId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "tokenHash"
+                  ]
+                }
+              ]
+            },
             "User": {
               "columns": {
                 "createdAt": {
@@ -370,7 +548,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "14fec612a508a7cbb5e761879dd228169a92ecff267f7818f7aff6810e2e43f3"
+    "storageHash": "d385e92e62b2038f49c907950aa2934e1c03e47d7037b9a47b5da25f0b86d6e4"
   },
   "capabilities": {
     "postgres": {

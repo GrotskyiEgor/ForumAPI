@@ -1,9 +1,22 @@
-import type { User } from "../../../domain/user/entity.js";
-import type { PasswordNotCorrectError, EmailNotCorrectError, UserAlreadyExistError, UserNotFoundError, InvalidRefreshTokenError } from "../user/errors.js";
+import type { PublicUser } from "../../../domain/user/entity.js";
+import type {
+	InvalidCredentialsError,
+	UserAlreadyExistError,
+	UserNotFoundError,
+	InvalidRefreshTokenError,
+} from "../user/errors.js";
 
-export type Tokens = { accessToken: string; refreshToken: string }
+export type Tokens = { accessToken: string; refreshToken: string };
 
-export type RegisterUserResponse = { success: true; data: User} | { success: false; error: UserAlreadyExistError}
-export type LoginUserResponse = { success: true; data: User} | { success: false; error: PasswordNotCorrectError | EmailNotCorrectError }
-export type GetUserByIdResponse = { success: true; data: User} | { success: false; error: UserNotFoundError}
-export type RefreshUserResponse = { success: true; data: Tokens} | { success: false; error: InvalidRefreshTokenError}
+export type RegisterUserResponse =
+	| { success: true; data: PublicUser }
+	| { success: false; error: UserAlreadyExistError };
+export type LoginUserResponse =
+	| { success: true; data: { user: PublicUser; tokens: Tokens } }
+	| { success: false; error: InvalidCredentialsError };
+export type GetUserByIdResponse =
+	| { success: true; data: PublicUser }
+	| { success: false; error: UserNotFoundError };
+export type RefreshUserResponse =
+	| { success: true; data: Tokens }
+	| { success: false; error: InvalidRefreshTokenError };

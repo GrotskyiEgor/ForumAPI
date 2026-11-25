@@ -1,43 +1,54 @@
-import type { PostSevice } from "./types.js"
-import type { PostReposityry } from "../../domain/post/repository.js"
-import { PostNotFoundError, InvalidUserIdError, PostAllFieldsRequiredError } from "../../transport/dto/post/errors.js"
-import { UserNotFoundError } from "../../transport/dto/user/errors.js"
-
-
+import type { PostSevice } from "./types.js";
+import type { PostReposityry } from "../../domain/post/repository.js";
+import {
+	PostNotFoundError,
+	InvalidUserIdError,
+	PostAllFieldsRequiredError,
+} from "../../transport/dto/post/errors.js";
+import { UserNotFoundError } from "../../transport/dto/user/errors.js";
 
 export function createPostService(postRepository: PostReposityry): PostSevice {
+	return {
+		async getAll(category, take) {
+			return {
+				success: true,
+				data: await postRepository.getAll(category, take),
+			};
+		},
 
-    return {
-        async getAll(category, take){
-            return { success: true, data: await postRepository.getAll(category, take)}
-        },
-        
-        async getById(id){
-            const post = await postRepository.getById(id)
+		async getById(id) {
+			const post = await postRepository.getById(id);
 
-            if (!post) {
-                return { success: false, error: new PostNotFoundError()}
-            }
+			if (!post) {
+				return { success: false, error: new PostNotFoundError() };
+			}
 
-            return { success: true, data: post}
-        },
-        
-        async addPost(post, userId){
-            if (!Number.isSafeInteger(userId) || userId <= 0) {
-                return { success: false, error: new InvalidUserIdError()}
-            }
+			return { success: true, data: post };
+		},
 
-            if ( !post.title?.trim() || !post.description?.trim() || !post.category?.trim()) {
-                return { success: false, error: new PostAllFieldsRequiredError()}
-            }
+		async addPost(post, userId) {
+			if (!Number.isSafeInteger(userId) || userId <= 0) {
+				return { success: false, error: new InvalidUserIdError() };
+			}
 
-            const newPost = await postRepository.addPost(post, userId)
+			if (
+				!post.title?.trim() ||
+				!post.description?.trim() ||
+				!post.category?.trim()
+			) {
+				return {
+					success: false,
+					error: new PostAllFieldsRequiredError(),
+				};
+			}
 
-            if (!newPost) {
-                return { success: false, error: new UserNotFoundError()}
-            }
+			const newPost = await postRepository.addPost(post, userId);
 
-            return { success: true, data: newPost}
-        }
-    }
+			if (!newPost) {
+				return { success: false, error: new UserNotFoundError() };
+			}
+
+			return { success: true, data: newPost };
+		},
+	};
 }

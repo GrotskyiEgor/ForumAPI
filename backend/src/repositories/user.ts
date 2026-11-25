@@ -1,37 +1,41 @@
-import { hashPassword } from "../lib/password";
 import type { UserRepository } from "../domain/user/repository";
 import { db } from "../prisma/db";
 
 export function createUserRepository(): UserRepository {
-    return {
+	return {
+		async create(newUser) {
+			try {
+				return await db.orm.public.User.create(newUser);
+			} catch (error) {
+				if (
+					error instanceof Error &&
+					"sqlState" in error &&
+					error.sqlState === "23505"
+				) {
+					throw new Error("EMAIL_ALREADY_EXISTS");
+				}
+				throw error;
+			}
+		},
 
-        async createUser(userRegistrate) {
-            const user = await db.orm.public.User.create({
-                ...userRegistrate,
-                password: await hashPassword(userRegistrate.password),
-            })
+		async getUserByEmail(email) {
+			const user = await db.orm.public.User.where({ email }).first();
 
-            return user
-        },
+			if (!user) {
+				return undefined;
+			}
 
-        async getUserByEmail(email) {
-            const user = await db.orm.public.User.where({ email }).first()
+			return user;
+		},
 
-            if (!user) {
-                return undefined;
-            }
+		async getUserById(id) {
+			const user = await db.orm.public.User.where({ id }).first();
 
-            return user
-        },
+			if (!user) {
+				return undefined;
+			}
 
-        async getUserById(id) {
-            const user = await db.orm.public.User.where({ id }).first()
-
-            if (!user) {
-                return undefined;
-            }
-
-            return user
-        }
-    }
+			return user;
+		},
+	};
 }

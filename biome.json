@@ -1,0 +1,100 @@
+{
+  "$schema": "https://biomejs.dev",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": true
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "tab",
+    "indentWidth": 4,
+    "lineWidth": 80
+  },
+  "linter": {
+    "enabled": true,
+    "domains": {
+      "react": "recommended"
+    },
+    "rules": {
+      "recommended": true,
+      "complexity": {
+        "useOptionalChain": "error",
+        "noExcessiveCognitiveComplexity": "error"
+      },
+      "suspicious": {
+        "noExplicitAny": "warn",
+        "noEmptyBlockStatements": "error",
+        "noImplicitAnyLet": "error",
+        "useGetterReturn": "error",
+        "noArrayIndexKey": "warn",
+        "noAssignInExpressions": "error",
+        "noDoubleEquals": "error",
+        "noUnknownAtRules": "off"
+      },
+      "style": {
+        "useBlockStatements": "error",
+        "useConst": "error",
+        "noNonNullAssertion": "warn",
+        "useConsistentArrayType": "error",
+        "noParameterAssign": "error",
+        "useImportType": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always",
+      "arrowParentheses": "always"
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["backend/**"],
+      "javascript": {
+        "parser": {
+          "unsafeParameterDecoratorsEnabled": true
+        }
+      },
+      "linter": {
+        "domains": {
+          "react": "none"
+        }
+      }
+    },
+    {
+      "includes": ["frontend/**"],
+      "linter": {
+        "domains": {
+          "react": "recommended"
+        },
+        "rules": {
+          "a11y": {
+            "recommended": true
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/src/shared/assets/**"],
+      "linter": {
+        "enabled": false
+      }
+    }
+  ],
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "off",
+        "useSortedAttributes": "off",
+        "useSortedKeys": "off",
+        "useSortedProperties": "off"
+      }
+    }
+  }
+}

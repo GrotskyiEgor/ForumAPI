@@ -1,11 +1,9 @@
 declare global {
-  namespace Express {
-    interface Request {
-      auth?: {
-        sub: string;
-      };
-    }
-  }
+	namespace Express {
+		interface Locals {
+			userId?: number;
+		}
+	}
 }
 
 export {};
